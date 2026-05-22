@@ -18,9 +18,11 @@ stages:
      - task: PowerShell@2
        inputs:
          targetType: 'inline'
-         script: 'mvn clean package'
-         workingDirectory: $(System.DefaultWorkingDirectory)
-
+         script: |
+           cd "$(Build.SourcesDirectory)\JavaLoginPracticeApp-main\JavaLoginPracticeApp-main"
+               dir
+               mvn clean install
+         
      - task: PublishBuildArtifacts@1
        inputs:
           PathtoPublish: '$(Build.ArtifactStagingDirectory)'
