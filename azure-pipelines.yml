@@ -78,7 +78,7 @@ stages:
           -Dsonar.sources=. `
           -Dsonar.host.url=http://localhost:9000 `
           -Dsonar.login=admin `
-          -Dsonar.password=admin
+          -Dsonar.password=Airtel@123
 
     # ================= OWASP SCA =================
 
