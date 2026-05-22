@@ -10,10 +10,10 @@ pool: taskify-pool
 
 stages:
 - stage: build 
-  displayname: build
+  displayName: mvn_build
   jobs:
   -  job: 
-     displayname: mvn-build
+     displayName: mvn-build
      steps: 
      - task: PowerShell@2
        inputs:
