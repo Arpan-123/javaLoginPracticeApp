@@ -19,6 +19,7 @@ stages:
        inputs:
          targetType: 'inline'
          script: 'mvn clean package'
+         workingDirectory: $(System.DefaultWorkingDirectory)
 
      - task: PublishBuildArtifacts@1
        inputs:
