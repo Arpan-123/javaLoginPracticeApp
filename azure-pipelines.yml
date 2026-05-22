@@ -22,9 +22,53 @@ stages:
            cd "$(Build.SourcesDirectory)\JavaLoginPracticeApp-main\JavaLoginPracticeApp-main"
                dir
                mvn clean install
+
+     - task: CopyFiles@2
+       inputs:
+        SourceFolder: '$(Build.SourcesDirectory)\JavaLoginPracticeApp-main\JavaLoginPracticeApp-main\target'
+        Contents: '*.war'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
          
      - task: PublishBuildArtifacts@1
        inputs:
           PathtoPublish: '$(Build.ArtifactStagingDirectory)'
           ArtifactName: 'build'
           publishLocation: 'Container'
+
+ # ---------------- DEPLOY ----------------
+
+- stage: deploy
+  displayName: tomcat_deploy
+
+  dependsOn: build
+
+  jobs:
+  - job:
+    displayName: deploy-war
+
+    steps:
+
+    - download: current
+      artifact: build
+
+    - task: PowerShell@2
+      inputs:
+        targetType: 'inline'
+        script: |
+
+          # Stop Tomcat
+
+          cd "C:\Tomcat\bin"
+
+          .\shutdown.bat
+
+          Start-Sleep -Seconds 10
+
+          # Copy WAR
+
+          Copy-Item "$(Pipeline.Workspace)\build\*.war" "C:\Tomcat\webapps\" -Force
+
+          # Start Tomcat
+
+          .\startup.bat 
