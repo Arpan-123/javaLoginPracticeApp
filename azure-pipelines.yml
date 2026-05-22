@@ -1,50 +1,111 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger: none
 
-pool: taskify-pool
+pool:
+  name: taskify-pool
 
 stages:
-- stage: build 
-  displayName: mvn_build
-  jobs:
-  -  job: 
-     displayName: mvn-build
-     steps: 
-     - task: PowerShell@2
-       inputs:
-         targetType: 'inline'
-         script: |
-           cd "$(Build.SourcesDirectory)\JavaLoginPracticeApp-main\JavaLoginPracticeApp-main"
-               dir
-               mvn clean install
 
-     - task: CopyFiles@2
-       inputs:
+# ================= BUILD STAGE =================
+
+- stage: build
+  displayName: Maven_Build
+
+  jobs:
+  - job: BuildJob
+    displayName: MavenBuild
+
+    steps:
+
+    - checkout: self
+
+    - task: PowerShell@2
+      displayName: Maven Build
+      inputs:
+        targetType: 'inline'
+        script: |
+
+          cd "$(Build.SourcesDirectory)\JavaLoginPracticeApp-main\JavaLoginPracticeApp-main"
+
+          dir
+
+          mvn clean install
+
+    # Copy WAR File
+
+    - task: CopyFiles@2
+      displayName: Copy WAR File
+      inputs:
         SourceFolder: '$(Build.SourcesDirectory)\JavaLoginPracticeApp-main\JavaLoginPracticeApp-main\target'
         Contents: '*.war'
         TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-         
-     - task: PublishBuildArtifacts@1
-       inputs:
-          PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-          ArtifactName: 'build'
-          publishLocation: 'Container'
+    # Publish Artifact
 
- # ---------------- DEPLOY ----------------
+    - task: PublishBuildArtifacts@1
+      displayName: Publish Artifact
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'build'
+        publishLocation: 'Container'
 
-- stage: deploy
-  displayName: tomcat_deploy
+# ================= SAST + SCA SCANNING =================
+
+- stage: scanning
+  displayName: Security_Scanning
 
   dependsOn: build
 
   jobs:
-  - job:
-    displayName: deploy-war
+  - job: SecurityScan
+    displayName: Sonar_and_OWASP
+
+    steps:
+
+    - checkout: self
+
+    # ================= SONARQUBE SAST =================
+
+    - task: PowerShell@2
+      displayName: SonarQube SAST Scan
+      inputs:
+        targetType: 'inline'
+        script: |
+
+          cd "$(Build.SourcesDirectory)\JavaLoginPracticeApp-main\JavaLoginPracticeApp-main"
+
+          sonar-scanner `
+          -Dsonar.projectKey=java-login `
+          -Dsonar.sources=. `
+          -Dsonar.host.url=http://localhost:9000 `
+          -Dsonar.login=admin `
+          -Dsonar.password=admin
+
+    # ================= OWASP SCA =================
+
+    - task: PowerShell@2
+      displayName: OWASP Dependency Check
+      inputs:
+        targetType: 'inline'
+        script: |
+
+          cd "$(Build.SourcesDirectory)\JavaLoginPracticeApp-main\JavaLoginPracticeApp-main"
+
+          dependency-check.bat `
+          --project "JavaLoginPracticeApp" `
+          --scan . `
+          --format HTML `
+          --out reports
+
+# ================= DEPLOY STAGE =================
+
+- stage: deploy
+  displayName: Tomcat_Deploy
+
+  dependsOn: scanning
+
+  jobs:
+  - job: DeployWAR
+    displayName: Deploy_To_Tomcat
 
     steps:
 
@@ -52,6 +113,7 @@ stages:
       artifact: build
 
     - task: PowerShell@2
+      displayName: Deploy WAR To Tomcat
       inputs:
         targetType: 'inline'
         script: |
@@ -64,10 +126,14 @@ stages:
 
           Start-Sleep -Seconds 10
 
-          # Copy WAR
+          # Remove Old WAR (Optional)
+
+          Remove-Item "C:\tools\apache-tomcat-10.1.55\webapps\*.war" -Force -ErrorAction SilentlyContinue
+
+          # Copy New WAR
 
           Copy-Item "$(Pipeline.Workspace)\build\*.war" "C:\tools\apache-tomcat-10.1.55\webapps\" -Force
 
           # Start Tomcat
 
-          .\startup.bat 
+          .\startup.bat
