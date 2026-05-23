@@ -78,7 +78,7 @@ stages:
           -"Dsonar.sources=." `
           -"Dsonar.host.url=http://localhost:9000" `
           -"Dsonar.login=admin" `
-          -"Dsonar.token=sqp_d18d8a3f2fc2d9790b886120f5038e1b75e397cc"
+          -"Dsonar.token=sqa_8dec0989250f254c523cd120764eeaf1a02f7f5c"
 
     # ================= OWASP SCA =================
 
