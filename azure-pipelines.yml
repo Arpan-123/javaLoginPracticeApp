@@ -159,7 +159,7 @@ stages:
 
            cd "$(Build.SourcesDirectory)"
 
-            & "C:\Program Files\OWASP\Zed Attack Proxy\zap.bat" `
+            & "C:\Program Files\ZAP\Zed Attack Proxy\zap.bat" `
            -cmd `
            -quickurl "http://localhost:8080/JavaLoginShowcase-1.0.0/" `
            -quickout "$(Build.SourcesDirectory)\zap-report.html"
