@@ -156,13 +156,12 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
+          cd "$(Build.SourcesDirectory)"
 
-           cd "$(Build.SourcesDirectory)"
-
-            & "C:\Program Files\ZAP\Zed Attack Proxy\zap.bat" `
-           -cmd `
-           -quickurl "http://localhost:8080/JavaLoginShowcase-1.0.0/" `
-           -quickout "$(Build.SourcesDirectory)\zap-report.html"
+          & "C:\Program Files\ZAP\Zed Attack Proxy\zap.bat" `
+          -cmd `
+          -quickurl "http://localhost:8080/JavaLoginShowcase-1.0.0/" `
+          -quickout "$(Build.SourcesDirectory)\zap-report.html"
 
     - task: PublishBuildArtifacts@1
       displayName: Publish ZAP Report
