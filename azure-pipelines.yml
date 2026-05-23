@@ -74,11 +74,11 @@ stages:
           cd "$(Build.SourcesDirectory)\JavaLoginPracticeApp-main\JavaLoginPracticeApp-main"
 
           sonar-scanner `
-          -Dsonar.projectKey=java-login `
-          -Dsonar.sources=. `
-          -Dsonar.host.url=http://localhost:9000 `
-          -Dsonar.login=admin `
-          -Dsonar.password=Airtel@123
+          -"Dsonar.projectKey=java-login" `
+          -"Dsonar.sources=." `
+          -"Dsonar.host.url=http://localhost:9000" `
+          -"Dsonar.login=admin" `
+          -"Dsonar.token=sqp_d18d8a3f2fc2d9790b886120f5038e1b75e397cc"
 
     # ================= OWASP SCA =================
 
