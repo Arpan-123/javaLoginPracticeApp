@@ -158,7 +158,7 @@ stages:
         script: |
 
           docker run -t owasp/zap2docker-stable zap-baseline.py `
-          -t http://host.docker.internal:8080/JavaLoginPracticeApp `
+          -t http://localhost:8080/JavaLoginShowcase-1.0.0/ `
           -r zap-report.html
 
     - task: PublishBuildArtifacts@1
