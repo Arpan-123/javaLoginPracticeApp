@@ -157,9 +157,12 @@ stages:
         targetType: 'inline'
         script: |
 
-          docker run -t owasp/zap2docker-stable zap-baseline.py `
-          -t http://localhost:8080/JavaLoginShowcase-1.0.0/ `
-          -r zap-report.html
+           cd "$(Build.SourcesDirectory)"
+
+            & "C:\Program Files\OWASP\Zed Attack Proxy\zap.bat" `
+           -cmd `
+           -quickurl "http://localhost:8080/JavaLoginShowcase-1.0.0/" `
+           -quickout "$(Build.SourcesDirectory)\zap-report.html"
 
     - task: PublishBuildArtifacts@1
       displayName: Publish ZAP Report
